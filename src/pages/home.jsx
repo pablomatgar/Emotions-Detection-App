@@ -1,9 +1,33 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Page } from "framework7-react";
 
 const HomePage = () => {
-  let isPhone = false;
+  const videoRef = useRef(null);
+
+  let isPhone = true;
   let recognizedEmotion = "Sad";
+
+  useEffect(() => {
+    getBrowserCamera();
+  }, [])
+
+  const getBrowserCamera = () =>
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: false,
+        video: {
+          facingMode: "user",
+          width: 224,
+          height: 224,
+        },
+      })
+      .then((stream) => {
+        console.log(stream)
+        videoRef.current.src = stream;
+      })
+      .catch((err) => {
+        console.log("Something went wrong!", err);
+      });
 
   return (
     <Page name='home' className='home-component'>
@@ -13,8 +37,7 @@ const HomePage = () => {
       {isPhone ? (
         <video
           className='capturing-video'
-          // ref='videoRef'
-          playsInline
+          ref={videoRef}
           autoPlay
         ></video>
       ) : (
@@ -27,7 +50,9 @@ const HomePage = () => {
         />
       )}
 
-      <h2 className='recognized-title'>Recognized emotion:</h2>
+      <h2 className='recognized-title'>
+        Recognized emotion:
+      </h2>
       <p className='recognized-emotion'>{recognizedEmotion}</p>
 
       <p className='footer'>
