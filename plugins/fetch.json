@@ -1,0 +1,10 @@
+{
+  "com.virtuoworks.cordova-plugin-canvascamera": {
+    "source": {
+      "type": "registry",
+      "id": "com.virtuoworks.cordova-plugin-canvascamera@^1.2.2"
+    },
+    "is_top_level": true,
+    "variables": {}
+  }
+}
