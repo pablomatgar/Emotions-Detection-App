@@ -1,31 +1,39 @@
-import React from 'react';
-import {
-  Page,
-  Navbar,
-  NavTitle,
-  NavTitleLarge,
-  Link,
-  Toolbar,
-  Block,
-} from 'framework7-react';
+import React from "react";
+import { Page } from "framework7-react";
 
-const HomePage = () => (
-  <Page name="home">
-    {/* Top Navbar */}
-    <Navbar large>
-      <NavTitle>My App</NavTitle>
-      <NavTitleLarge>My App</NavTitleLarge>
-    </Navbar>
-    {/* Toolbar */}
-    <Toolbar bottom>
-      <Link>Left Link</Link>
-      <Link>Right Link</Link>
-    </Toolbar>
-    {/* Page content */}
-    <Block strong>
-      <p>Here is your blank Framework7 app. Let's see what we have here.</p>
-    </Block>
+const HomePage = () => {
+  let isPhone = false;
+  let recognizedEmotion = "Sad";
 
-  </Page>
-);
+  return (
+    <Page name='home' className='home-component'>
+      <h2 className='title'>Emotions Recognition</h2>
+      <p className='sub-title'>What emotions do you feel today?</p>
+
+      {isPhone ? (
+        <video
+          className='capturing-video'
+          // ref='videoRef'
+          playsInline
+          autoPlay
+        ></video>
+      ) : (
+        <img
+          className='capturing-img'
+          // ref='imageRef'
+          width='224'
+          height='224'
+          src='../static/placeholder.png'
+        />
+      )}
+
+      <h2 className='recognized-title'>Recognized emotion:</h2>
+      <p className='recognized-emotion'>{recognizedEmotion}</p>
+
+      <p className='footer'>
+        Created by <br /> Asial Corporation
+      </p>
+    </Page>
+  );
+};
 export default HomePage;
