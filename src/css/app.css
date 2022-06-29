@@ -3,4 +3,54 @@
   height: 100vh;
 }
 
-/* Your app custom styles here */
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+.home-component {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.title {
+  margin-top: 40px;
+}
+
+.sub-title {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.capturing-video {
+  border: 3px solid #000000;
+  width: 90%;
+  height: auto;
+  max-height: 350px;
+}
+
+.recognized-title {
+  color: #616161;
+}
+
+.recognized-emotion {
+  border: 3px solid #000000;
+  width: 90%;
+  margin: auto;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.footer {
+  color: #616161;
+  font-size: 16px;
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20px;
+}
