@@ -1,19 +1,32 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Page } from "framework7-react";
+// import * as faceapi from "face-api.js";
+import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
 
 const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
+  const [detectedEmotion, setDetectedEmotion] = useState("Loading...");
+  const MODEL_URL = "../static/models";
 
-  let recognizedEmotion = "Sad";
+  const loadModel = async () => {
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+  };
 
   useEffect(() => {
+    // loadModel();
+    startVideo();
+  }, []);
+
+  const startVideo = () => {
     if (isMobile()) {
       startCanvasCamera();
     } else {
       getBrowserCamera();
     }
-  }, []);
+  };
 
   // ------------------------- Helper functions -------------------------
   const isAndroid = () => {
@@ -48,8 +61,26 @@ const HomePage = () => {
           height: 224,
         },
       })
-      .then((stream) => {
+      .then(async (stream) => {
         videoRef.current.srcObject = stream;
+
+        setInterval(async () => {
+          const detectionWithExpressions = await faceapi
+            .detectSingleFace(videoRef.current)
+            .withFaceExpressions();
+
+          try {
+            setDetectedEmotion(
+              Object.entries(detectionWithExpressions.expressions).filter(
+                (key) => {
+                  return key[1] > 0.9;
+                }
+              )
+            );
+          } catch (error) {
+            console.log("No face found");
+          }
+        }, 2000);
       })
       .catch((err) => {
         console.log("Something went wrong!", err);
@@ -57,6 +88,7 @@ const HomePage = () => {
 
   // Mobile
   const readImageFile = (data) => {
+    // set file protocol
     const protocol = "file://";
     let filepath = "";
     if (isAndroid()) {
@@ -64,9 +96,10 @@ const HomePage = () => {
     } else {
       filepath = data.output.images.fullsize.file;
     }
+    // read image from local file and assign to image element
     window.resolveLocalFileSystemURL(
       filepath,
-      async (fileEntry) => {
+      (fileEntry) => {
         fileEntry.file(
           (file) => {
             const reader = new FileReader();
@@ -74,14 +107,18 @@ const HomePage = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
                 type: "image/png",
               });
-              imageRef.value.src = window.URL.createObjectURL(blob);
+              imageRef.current = window.URL.createObjectURL(blob);
             };
             reader.readAsArrayBuffer(file);
           },
-          () => {}
+          (err) => {
+            console.log("read", err);
+          }
         );
       },
-      () => {}
+      (error) => {
+        console.log(error);
+      }
     );
   };
 
@@ -102,10 +139,10 @@ const HomePage = () => {
     };
     window.plugin.CanvasCamera.start(
       options,
-      async () => {},
-      (data) => {
-        readImageFile(data);
-      }
+      (err) => {
+        console.log("Something went wrong!", err);
+      },
+      (stream) => readImageFile(stream)
     );
   };
 
@@ -119,7 +156,7 @@ const HomePage = () => {
       ) : (
         <img
           className='capturing-img'
-          // ref='imageRef'
+          ref='imageRef'
           width='224'
           height='224'
           src='../static/placeholder.png'
@@ -127,7 +164,7 @@ const HomePage = () => {
       )}
 
       <h2 className='recognized-title'>Recognized emotion:</h2>
-      <p className='recognized-emotion'>{recognizedEmotion}</p>
+      <p className='recognized-emotion'>{detectedEmotion}</p>
 
       <p className='footer'>
         Created by <br /> Asial Corporation
