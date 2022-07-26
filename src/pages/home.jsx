@@ -7,7 +7,7 @@ const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
   const [detectedEmotion, setDetectedEmotion] = useState("Loading...");
-  const MODEL_URL = "../static/models";
+  const MODEL_URL = "/models";
 
   const loadModel = async () => {
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
@@ -15,16 +15,18 @@ const HomePage = () => {
     await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
   };
 
-  useEffect(() => {
-    // loadModel();
+  useEffect(async () => {
+    await loadModel();
     startVideo();
   }, []);
 
   const startVideo = () => {
     if (isMobile()) {
       startCanvasCamera();
+      predictEmotion(imageRef.current);
     } else {
       getBrowserCamera();
+      predictEmotion(videoRef.current);
     }
   };
 
@@ -49,6 +51,24 @@ const HomePage = () => {
     }
   };
 
+  const predictEmotion = async (stream) => {
+    setInterval(async () => {
+      const detectionWithExpressions = await faceapi
+        .detectSingleFace(stream)
+        .withFaceExpressions();
+
+      try {
+        setDetectedEmotion(
+          Object.entries(detectionWithExpressions.expressions).filter((key) => {
+            return key[1] > 0.9;
+          })
+        );
+      } catch (error) {
+        console.log("No face found");
+      }
+    }, 2000);
+  };
+
   // ------------------------- Camera functions -------------------------
   // Desktop
   const getBrowserCamera = () =>
@@ -63,24 +83,6 @@ const HomePage = () => {
       })
       .then(async (stream) => {
         videoRef.current.srcObject = stream;
-
-        setInterval(async () => {
-          const detectionWithExpressions = await faceapi
-            .detectSingleFace(videoRef.current)
-            .withFaceExpressions();
-
-          try {
-            setDetectedEmotion(
-              Object.entries(detectionWithExpressions.expressions).filter(
-                (key) => {
-                  return key[1] > 0.9;
-                }
-              )
-            );
-          } catch (error) {
-            console.log("No face found");
-          }
-        }, 2000);
       })
       .catch((err) => {
         console.log("Something went wrong!", err);
@@ -107,7 +109,7 @@ const HomePage = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
                 type: "image/png",
               });
-              imageRef.current = window.URL.createObjectURL(blob);
+              imageRef.current.src = window.URL.createObjectURL(blob);
             };
             reader.readAsArrayBuffer(file);
           },
@@ -151,16 +153,16 @@ const HomePage = () => {
       <h2 className='title'>Emotions Recognition</h2>
       <p className='sub-title'>What emotions do you feel today?</p>
 
-      {isMobile ? (
-        <video className='capturing-video' ref={videoRef} autoPlay></video>
-      ) : (
+      {isMobile() ? (
         <img
           className='capturing-img'
-          ref='imageRef'
+          ref={imageRef}
           width='224'
           height='224'
           src='../static/placeholder.png'
         />
+      ) : (
+        <video className='capturing-video' ref={videoRef} autoPlay></video>
       )}
 
       <h2 className='recognized-title'>Recognized emotion:</h2>

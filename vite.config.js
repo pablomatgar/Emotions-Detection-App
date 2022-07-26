@@ -13,7 +13,7 @@ export default {
   ],
   root: SRC_DIR,
   base: '',
-  publicDir: false,
+  publicDir: './public',
   build: {
     outDir: BUILD_DIR,
     assetsInlineLimit: 0,
