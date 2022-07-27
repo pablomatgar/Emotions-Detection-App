@@ -151,7 +151,7 @@ const HomePage = () => {
   return (
     <Page name='home' className='home-component'>
       <h2 className='title'>Emotions Recognition</h2>
-      <p className='sub-title'>What emotions do you feel today?</p>
+      <p className='sub-title'>How do you feel today?</p>
 
       {isMobile() ? (
         <img
@@ -165,7 +165,7 @@ const HomePage = () => {
         <video className='capturing-video' ref={videoRef} autoPlay></video>
       )}
 
-      <h2 className='recognized-title'>Recognized emotion:</h2>
+      <h2 className='recognized-title'>Recognised emotion:</h2>
       <p className='recognized-emotion'>{detectedEmotion}</p>
 
       <p className='footer'>
