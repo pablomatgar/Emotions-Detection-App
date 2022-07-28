@@ -7,7 +7,7 @@ const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
   const [detectedEmotion, setDetectedEmotion] = useState("Loading...");
-  const MODEL_URL = "/models";
+  const MODEL_URL = "models";
 
   const loadModel = async () => {
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
@@ -60,7 +60,9 @@ const HomePage = () => {
       try {
         setDetectedEmotion(
           Object.entries(detectionWithExpressions.expressions).filter((key) => {
-            return key[1] > 0.9;
+            key[0] = (key[0] + ' ').toUpperCase();
+            key[1] = Math.trunc(key[1] * 100);
+            return key[1] > 90;
           })
         );
       } catch (error) {
@@ -135,7 +137,7 @@ const HomePage = () => {
         height: 224,
       },
       use: "file",
-      fps: 30,
+      fps: 15,
       hasThumbnail: false,
       cameraFacing: "front",
     };
@@ -166,7 +168,7 @@ const HomePage = () => {
       )}
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
-      <p className='recognized-emotion'>{detectedEmotion}</p>
+      <p className='recognized-emotion'>{detectedEmotion}%</p>
 
       <p className='footer'>
         Created by <br /> Asial Corporation
