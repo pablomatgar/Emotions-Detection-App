@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Page } from "framework7-react";
-// import * as faceapi from "face-api.js";
 import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
 
 const HomePage = () => {
@@ -51,6 +50,7 @@ const HomePage = () => {
     }
   };
 
+  // ------------------------- Predictions -------------------------
   const predictEmotion = async (stream) => {
     setInterval(async () => {
       const detectionWithExpressions = await faceapi
@@ -58,15 +58,20 @@ const HomePage = () => {
         .withFaceExpressions();
 
       try {
-        setDetectedEmotion(
-          Object.entries(detectionWithExpressions.expressions).filter((key) => {
-            key[0] = (key[0] + ' ').toUpperCase();
-            key[1] = Math.trunc(key[1] * 100);
-            return key[1] > 90;
-          })
-        );
+        const singlePredictedEmotion = Object.entries(
+          detectionWithExpressions.expressions
+        ).filter((key) => {
+          key[0] = (key[0] + " ").toUpperCase();
+          key[1] = Math.trunc(key[1] * 100);
+          return key[1] > 80;
+        });
+        if (singlePredictedEmotion.length > 0) {
+          setDetectedEmotion(
+            singlePredictedEmotion.toString().replace(/,/g, "") + "%"
+          );
+        }
       } catch (error) {
-        console.log("No face found");
+        setDetectedEmotion("No face found");
       }
     }, 2000);
   };
@@ -168,7 +173,7 @@ const HomePage = () => {
       )}
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
-      <p className='recognized-emotion'>{detectedEmotion}%</p>
+      <p className='recognized-emotion'>{detectedEmotion}</p>
 
       <p className='footer'>
         Created by <br /> Asial Corporation
