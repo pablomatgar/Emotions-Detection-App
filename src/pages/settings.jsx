@@ -2,17 +2,33 @@ import React, { useEffect, useRef, useState } from "react";
 import { Page, Button, BlockTitle, Block, Range } from "framework7-react";
 
 const SettingsPage = () => {
-  const vibrationsRef = useRef(false);
-  const FPSRef = useRef(5);
+  const vibrationsRef = useRef();
+  const FPSRef = useRef();
+
+  let [FPS, setFPS] = useState(15);
+  let [vibrations, setVibrations] = useState(false);
 
   useEffect(() => {
-    console.log(vibrationsRef.current.checked);
-
+    if(localStorage.getItem('vibrations') === null){
+      localStorage.setItem('vibrations', vibrations);
+    }
+    else{
+      setVibrations(localStorage.getItem('vibrations'));
+    }
+  
+    if(localStorage.getItem('FPS') === null){
+      localStorage.setItem('FPS', FPS);
+    }
+    else{
+      setFPS(localStorage.getItem('FPS'));
+    }
   }, [])
 
   const saveSettings = () => {
-    console.log(vibrationsRef.current.checked);
-    console.log(FPSRef.current.value);
+    console.log(vibrationsRef.current.checked)
+    console.log(FPSRef.current.value)
+    localStorage.setItem('vibrations', vibrationsRef.current.checked);
+    localStorage.setItem('FPS', FPSRef.current.value);
   };
 
   return (
@@ -24,7 +40,7 @@ const SettingsPage = () => {
         <div className='stepper stepper-init color-black'>
           <div className='stepper-button-minus'></div>
           <div className='stepper-input-wrap'>
-            <input type='text' readOnly min='5' max='50' step='5' value={FPSRef.current} ref={FPSRef} onClick={saveSettings} />
+            <input type='text' readOnly min='5' max='50' step='5' value={FPS} ref={FPSRef} />
           </div>
           <div className='stepper-button-plus'></div>
         </div>
@@ -79,7 +95,7 @@ const SettingsPage = () => {
             <li>
               <span>Vibrations</span>
               <label className='toggle toggle-init color-black'>
-                <input type='checkbox' ref={vibrationsRef} />
+                <input type='checkbox' ref={vibrationsRef} checked={vibrations}/>
                 <span className='toggle-icon'></span>
               </label>
             </li>
