@@ -174,7 +174,21 @@ const HomePage = () => {
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
       <p className='recognized-emotion'>{detectedEmotion}</p>
-      <Button outline color="black" href="/settings" className="button">Settings</Button>
+      <Button
+        outline
+        color='black'
+        href='/settings'
+        className='button'
+        onClick={() => {
+          if (isMobile()) {
+            imageRef.current.src = null;
+          } else {
+            videoRef.current.srcObject = null;
+          }
+        }}
+      >
+        Settings
+      </Button>
 
       <p className='footer'>
         Created by <br /> Asial Corporation
