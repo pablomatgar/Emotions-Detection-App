@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Page } from "framework7-react";
+import { Page, Button } from "framework7-react";
 import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
 
 const HomePage = () => {
@@ -156,7 +156,7 @@ const HomePage = () => {
   };
 
   return (
-    <Page name='home' className='home-component'>
+    <Page name='home' className='container-component'>
       <h2 className='title'>Emotions Recognition</h2>
       <p className='sub-title'>How do you feel today?</p>
 
@@ -174,6 +174,7 @@ const HomePage = () => {
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
       <p className='recognized-emotion'>{detectedEmotion}</p>
+      <Button outline color="black" href="/settings" className="button">Settings</Button>
 
       <p className='footer'>
         Created by <br /> Asial Corporation
