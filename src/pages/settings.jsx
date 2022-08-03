@@ -20,15 +20,22 @@ const SettingsPage = () => {
       localStorage.setItem('FPS', FPS);
     }
     else{
+      console.log(localStorage.getItem('FPS'))
       setFPS(localStorage.getItem('FPS'));
     }
   }, [])
+
+  const print = () =>{
+    console.log(FPSRef.current)
+  }
 
   const saveSettings = () => {
     console.log(vibrationsRef.current.checked)
     console.log(FPSRef.current.value)
     localStorage.setItem('vibrations', vibrationsRef.current.checked);
     localStorage.setItem('FPS', FPSRef.current.value);
+    setVibrations(localStorage.getItem('vibrations'));
+    setFPS(localStorage.getItem('FPS'));
   };
 
   return (
@@ -95,7 +102,7 @@ const SettingsPage = () => {
             <li>
               <span>Vibrations</span>
               <label className='toggle toggle-init color-black'>
-                <input type='checkbox' ref={vibrationsRef} checked={vibrations}/>
+                <input type='checkbox' ref={vibrationsRef} defaultChecked={vibrations}/>
                 <span className='toggle-icon'></span>
               </label>
             </li>
