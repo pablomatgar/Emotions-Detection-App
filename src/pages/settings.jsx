@@ -1,41 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Page, Button, BlockTitle, Block, Range } from "framework7-react";
+import React, { useRef } from "react";
+import {
+  Page,
+  Button,
+  BlockTitle,
+  Block,
+  Range,
+  Stepper,
+} from "framework7-react";
 
 const SettingsPage = () => {
+  const FPSref = useRef();
   const vibrationsRef = useRef();
-  const FPSRef = useRef();
-
-  let [FPS, setFPS] = useState(15);
-  let [vibrations, setVibrations] = useState(false);
-
-  useEffect(() => {
-    if(localStorage.getItem('vibrations') === null){
-      localStorage.setItem('vibrations', vibrations);
-    }
-    else{
-      setVibrations(localStorage.getItem('vibrations'));
-    }
-  
-    if(localStorage.getItem('FPS') === null){
-      localStorage.setItem('FPS', FPS);
-    }
-    else{
-      console.log(localStorage.getItem('FPS'))
-      setFPS(localStorage.getItem('FPS'));
-    }
-  }, [])
-
-  const print = () =>{
-    console.log(FPSRef.current)
-  }
+  const predictionIntervalRef = useRef();
+  const cameraRef = useRef();
 
   const saveSettings = () => {
-    console.log(vibrationsRef.current.checked)
-    console.log(FPSRef.current.value)
-    localStorage.setItem('vibrations', vibrationsRef.current.checked);
-    localStorage.setItem('FPS', FPSRef.current.value);
-    setVibrations(localStorage.getItem('vibrations'));
-    setFPS(localStorage.getItem('FPS'));
+    localStorage.setItem("vibrations", vibrationsRef.current.checked);
+    localStorage.setItem("FPS", FPSref.current.getValue());
+    localStorage.setItem(
+      "predictionInterval",
+      predictionIntervalRef.current.el.f7Range.value
+    );
   };
 
   return (
@@ -44,13 +29,16 @@ const SettingsPage = () => {
         <h2 className='title'>Settings</h2>
 
         <BlockTitle>FPS of camera</BlockTitle>
-        <div className='stepper stepper-init color-black'>
-          <div className='stepper-button-minus'></div>
-          <div className='stepper-input-wrap'>
-            <input type='text' readOnly min='5' max='50' step='5' value={FPS} ref={FPSRef} />
-          </div>
-          <div className='stepper-button-plus'></div>
-        </div>
+        <Stepper
+          type='text'
+          readOnly
+          min={10}
+          max={50}
+          step={5}
+          color='black'
+          ref={FPSref}
+          value={+localStorage.getItem("FPS") || 10}
+        />
 
         <BlockTitle>Prediction Interval</BlockTitle>
         <Block strong>
@@ -59,10 +47,11 @@ const SettingsPage = () => {
             max={10}
             label={true}
             step={1}
-            value={2}
             scale={true}
             scaleSteps={9}
             scaleSubSteps={1}
+            ref={predictionIntervalRef}
+            value={+localStorage.getItem("predictionInterval") || 2}
           />
         </Block>
 
@@ -71,7 +60,7 @@ const SettingsPage = () => {
           Choose which camera will predict emotions
         </div>
         <div className='list'>
-          <ul>
+          <ul ref={cameraRef}>
             <li>
               <label className='item-radio item-radio-icon-start item-content'>
                 <input type='radio' name='demo-radio-start' value='Front' />
@@ -102,14 +91,26 @@ const SettingsPage = () => {
             <li>
               <span>Vibrations</span>
               <label className='toggle toggle-init color-black'>
-                <input type='checkbox' ref={vibrationsRef} defaultChecked={vibrations}/>
+                <input
+                  type='checkbox'
+                  ref={vibrationsRef}
+                  defaultChecked={
+                    localStorage.getItem("vibrations") === "true" ? true : false
+                  }
+                />
                 <span className='toggle-icon'></span>
               </label>
             </li>
           </ul>
         </div>
 
-        <Button outline color='black' href='/' className='button' onClick={saveSettings}>
+        <Button
+          outline
+          color='black'
+          href='/'
+          className='button'
+          onClick={saveSettings}
+        >
           Back
         </Button>
       </Page>
