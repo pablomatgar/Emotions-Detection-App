@@ -12,16 +12,17 @@ const SettingsPage = () => {
   const FPSref = useRef();
   const vibrationsRef = useRef();
   const predictionIntervalRef = useRef();
-  const cameraRef = useRef();
+  const frontCameraRef = useRef();
 
   const saveSettings = () => {
+    console.log(frontCameraRef.current.checked);
     localStorage.setItem("vibrations", vibrationsRef.current.checked);
     localStorage.setItem("FPS", FPSref.current.getValue());
     localStorage.setItem(
       "predictionInterval",
       predictionIntervalRef.current.el.f7Range.value
     );
-    localStorage.setItem("camera", cameraRef.current.value);
+    localStorage.setItem("frontCamera", frontCameraRef.current.checked);
   };
 
   return (
@@ -56,18 +57,48 @@ const SettingsPage = () => {
           />
         </Block>
 
+        <div className='block-title'>Camera</div>
+        <div className='block-header'>
+          Choose which camera will predict emotions
+        </div>
         <div className='list'>
           <ul>
-            <li className='item-content item-input'>
-              <div className='item-inner'>
-                <div className='item-title item-label'>Camera</div>
-                <div className='item-input-wrap input-dropdown-wrap'>
-                  <select ref={cameraRef}>
-                    <option value='Front'>Front</option>
-                    <option value='Back'>Back</option>
-                  </select>
+            <li>
+              <label className='item-radio item-radio-icon-start item-content'>
+                <input
+                  ref={frontCameraRef}
+                  type='radio'
+                  name='radio'
+                  value='Front'
+                  defaultChecked={
+                    localStorage.getItem("frontCamera") === "true"
+                      ? true
+                      : false
+                  }
+                />
+                <i className='icon icon-radio'></i>
+                <div className='item-inner'>
+                  <div className='item-title'>Front</div>
                 </div>
-              </div>
+              </label>
+            </li>
+            <li>
+              <label className='item-radio item-radio-icon-start item-content'>
+                <input
+                  type='radio'
+                  name='radio'
+                  value='Back'
+                  defaultChecked={
+                    localStorage.getItem("frontCamera") === "false"
+                      ? true
+                      : false
+                  }
+                />
+                <i className='icon icon-radio'></i>
+                <div className='item-inner'>
+                  <div className='item-title'>Back</div>
+                </div>
+              </label>
             </li>
           </ul>
         </div>
