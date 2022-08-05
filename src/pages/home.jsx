@@ -61,6 +61,9 @@ const HomePage = () => {
         const singlePredictedEmotion = Object.entries(
           detectionWithExpressions.expressions
         ).filter((key) => {
+          if(key[0] === 'angry'){
+            navigator.vibrate(1000);
+          }
           key[0] = (key[0] + " ").toUpperCase();
           key[1] = Math.trunc(key[1] * 100);
           return key[1] > 80;
@@ -73,7 +76,7 @@ const HomePage = () => {
       } catch (error) {
         setDetectedEmotion("No face found");
       }
-    }, 2000);
+    }, (+localStorage.getItem("predictionInterval") || 2)*1000);
   };
 
   // ------------------------- Camera functions -------------------------
@@ -142,9 +145,11 @@ const HomePage = () => {
         height: 224,
       },
       use: "file",
-      fps: 15,
+      fps: +localStorage.getItem("FPS") || 15,
       hasThumbnail: false,
-      cameraFacing: "front",
+      cameraFacing: localStorage.getItem("frontCamera") === "true"
+      ? "front"
+      : "back",
     };
     window.plugin.CanvasCamera.start(
       options,

@@ -39,7 +39,7 @@ const SettingsPage = () => {
           step={5}
           color='black'
           ref={FPSref}
-          value={+localStorage.getItem("FPS") || 10}
+          value={+localStorage.getItem("FPS") || 15}
         />
 
         <BlockTitle>Prediction Interval</BlockTitle>
