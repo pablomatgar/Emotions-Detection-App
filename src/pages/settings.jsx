@@ -6,6 +6,8 @@ import {
   Block,
   Range,
   Stepper,
+  ListItem,
+  Toggle,
 } from "framework7-react";
 
 const SettingsPage = () => {
@@ -15,14 +17,13 @@ const SettingsPage = () => {
   const frontCameraRef = useRef();
 
   const saveSettings = () => {
-    console.log(frontCameraRef.current.checked);
-    localStorage.setItem("vibrations", vibrationsRef.current.checked);
+    localStorage.setItem("vibrations", vibrationsRef.current.f7Toggle().checked);
     localStorage.setItem("FPS", FPSref.current.getValue());
     localStorage.setItem(
       "predictionInterval",
       predictionIntervalRef.current.el.f7Range.value
     );
-    localStorage.setItem("frontCamera", frontCameraRef.current.checked);
+    localStorage.setItem("frontCamera", frontCameraRef.current.selected);
   };
 
   return (
@@ -57,74 +58,31 @@ const SettingsPage = () => {
           />
         </Block>
 
-        <div className='block-title'>Camera</div>
+        <BlockTitle>Camera</BlockTitle>
         <div className='block-header'>
           Choose which camera will predict emotions
         </div>
-        <div className='list'>
-          <ul>
-            <li>
-              <label className='item-radio item-radio-icon-start item-content'>
-                <input
-                  ref={frontCameraRef}
-                  type='radio'
-                  name='radio'
-                  value='Front'
-                  defaultChecked={
-                    localStorage.getItem("frontCamera") === "true"
-                      ? true
-                      : false
-                  }
-                />
-                <i className='icon icon-radio'></i>
-                <div className='item-inner'>
-                  <div className='item-title'>Front</div>
-                </div>
-              </label>
-            </li>
-            <li>
-              <label className='item-radio item-radio-icon-start item-content'>
-                <input
-                  type='radio'
-                  name='radio'
-                  value='Back'
-                  defaultChecked={
-                    localStorage.getItem("frontCamera") === "false"
-                      ? true
-                      : false
-                  }
-                />
-                <i className='icon icon-radio'></i>
-                <div className='item-inner'>
-                  <div className='item-title'>Back</div>
-                </div>
-              </label>
-            </li>
-          </ul>
-        </div>
+        
+        <Block strong smartSelect>
+        <select name="Camera" defaultValue={localStorage.getItem("frontCamera") === "true"
+                      ? "front"
+                      : "back"}>
+          <option value="front" ref={frontCameraRef}>Front</option>
+          <option value="back">Back</option>
+        </select>
+      </Block>
 
-        <div className='block-title'>Vibrations</div>
+      <BlockTitle>Vibrations</BlockTitle>
         <div className='block-header'>
           Activate to vibrate while you are happy
         </div>
-        <div className='list simple-list'>
-          <ul>
-            <li>
-              <span>Vibrations</span>
-              <label className='toggle toggle-init color-black'>
-                <input
-                  type='checkbox'
-                  ref={vibrationsRef}
-                  defaultChecked={
+        <Block strong>
+          <span>Vibrations</span>
+        <Toggle defaultChecked={
                     localStorage.getItem("vibrations") === "true" ? true : false
-                  }
-                />
-                <span className='toggle-icon'></span>
-              </label>
-            </li>
-          </ul>
-        </div>
-
+                  } ref={vibrationsRef}></Toggle>
+      </Block>
+       
         <Button
           outline
           color='black'
