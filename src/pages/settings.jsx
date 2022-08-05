@@ -8,6 +8,7 @@ import {
   Stepper,
   ListItem,
   Toggle,
+  List,
 } from "framework7-react";
 
 const SettingsPage = () => {
@@ -62,27 +63,30 @@ const SettingsPage = () => {
         <div className='block-header'>
           Choose which camera will predict emotions
         </div>
-        
-        <Block strong smartSelect>
-        <select name="Camera" defaultValue={localStorage.getItem("frontCamera") === "true"
-                      ? "front"
-                      : "back"}>
-          <option value="front" ref={frontCameraRef}>Front</option>
-          <option value="back">Back</option>
-        </select>
-      </Block>
+        <List>
+          <ListItem title="Camera" smartSelect smartSelectParams={{ openIn: 'sheet' }}>
+            <select name="Camera" defaultValue={localStorage.getItem("frontCamera") === "true"
+              ? "front"
+              : "back"}>
+              <option value="front" ref={frontCameraRef}>Front</option>
+              <option value="back">Back</option>
+            </select>
+          </ListItem>
+        </List>
 
-      <BlockTitle>Vibrations</BlockTitle>
+        <BlockTitle>Vibrations</BlockTitle>
         <div className='block-header'>
           Activate to vibrate while you are happy
         </div>
-        <Block strong>
-          <span>Vibrations</span>
-        <Toggle defaultChecked={
-                    localStorage.getItem("vibrations") === "true" ? true : false
-                  } ref={vibrationsRef}></Toggle>
-      </Block>
-       
+        <List>
+          <ListItem strong>
+            <span>Vibrations</span>
+            <Toggle defaultChecked={
+              localStorage.getItem("vibrations") === "true" ? true : false
+            } ref={vibrationsRef}></Toggle>
+          </ListItem>
+        </List>
+
         <Button
           outline
           color='black'
