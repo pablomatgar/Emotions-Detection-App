@@ -59,11 +59,4 @@ h2 {
 .footer {
   color: #616161;
   font-size: 16px;
-
-  display: flex;
-  justify-content: center;
-  position: fixed;
-  bottom: 50px;
-  left: 50%;
-  margin-left: -58px;
 }
