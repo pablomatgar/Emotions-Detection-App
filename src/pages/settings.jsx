@@ -18,7 +18,10 @@ const SettingsPage = () => {
   const frontCameraRef = useRef();
 
   const saveSettings = () => {
-    localStorage.setItem("vibrations", vibrationsRef.current.f7Toggle().checked);
+    localStorage.setItem(
+      "vibrations",
+      vibrationsRef.current.f7Toggle().checked
+    );
     localStorage.setItem("FPS", FPSref.current.getValue());
     localStorage.setItem(
       "predictionInterval",
@@ -64,12 +67,23 @@ const SettingsPage = () => {
           Choose which camera will predict emotions
         </div>
         <List>
-          <ListItem title="Camera" smartSelect smartSelectParams={{ openIn: 'sheet' }}>
-            <select name="Camera" defaultValue={localStorage.getItem("frontCamera") === "true"
-              ? "front"
-              : "back"}>
-              <option value="front" ref={frontCameraRef}>Front</option>
-              <option value="back">Back</option>
+          <ListItem
+            title='Camera'
+            smartSelect
+            smartSelectParams={{ openIn: "sheet" }}
+          >
+            <select
+              name='Camera'
+              defaultValue={
+                localStorage.getItem("frontCamera") === "true"
+                  ? "front"
+                  : "back"
+              }
+            >
+              <option value='front' ref={frontCameraRef}>
+                Front
+              </option>
+              <option value='back'>Back</option>
             </select>
           </ListItem>
         </List>
@@ -81,9 +95,12 @@ const SettingsPage = () => {
         <List>
           <ListItem strong>
             <span>Vibrations</span>
-            <Toggle defaultChecked={
-              localStorage.getItem("vibrations") === "true" ? true : false
-            } ref={vibrationsRef}></Toggle>
+            <Toggle
+              defaultChecked={
+                localStorage.getItem("vibrations") === "true" ? true : false
+              }
+              ref={vibrationsRef}
+            ></Toggle>
           </ListItem>
         </List>
 
