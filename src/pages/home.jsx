@@ -62,7 +62,7 @@ const HomePage = () => {
           detectionWithExpressions.expressions
         ).filter((key) => {
           if (
-            key[0] === "happy" &&
+            key[0] === "angry" &&
             localStorage.getItem("vibrations") === "true"
           ) {
             console.log("brrr");
@@ -123,7 +123,11 @@ const HomePage = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
                 type: "image/png",
               });
-              imageRef.current.src = window.URL.createObjectURL(blob);
+              try {
+                imageRef.current.src = window.URL.createObjectURL(blob);
+              } catch (error) {
+                console.warn("Video element has not loaded yet: " + error);
+              }
             };
             reader.readAsArrayBuffer(file);
           },
@@ -198,7 +202,7 @@ const HomePage = () => {
       >
         Settings
       </Button>
-
+      
       <p className='footer'>
         Created by <br /> Asial Corporation
       </p>
