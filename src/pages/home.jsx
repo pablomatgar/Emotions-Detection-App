@@ -12,6 +12,7 @@ const HomePage = () => {
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
     await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
     await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    console.log('model loaded');
   };
 
   useEffect(async () => {
@@ -19,12 +20,14 @@ const HomePage = () => {
     startVideo();
   }, []);
 
-  const startVideo = () => {
+  const startVideo = async () => {
     if (isMobile()) {
-      startCanvasCamera();
+      await startCanvasCamera();
+      console.log('camera started');
       predictEmotion(imageRef.current);
     } else {
-      getBrowserCamera();
+      await getBrowserCamera();
+      console.log('camera started');
       predictEmotion(videoRef.current);
     }
   };
@@ -51,42 +54,49 @@ const HomePage = () => {
   };
 
   // ------------------------- Predictions -------------------------
-  const predictEmotion = async (stream) => {
-    setInterval(async () => {
-      const detectionWithExpressions = await faceapi
+  const predictEmotion = (stream) => {
+    setInterval(() => {
+      if (!stream) return;
+      faceapi
         .detectSingleFace(stream)
-        .withFaceExpressions();
-
-      try {
-        const singlePredictedEmotion = Object.entries(
-          detectionWithExpressions.expressions
-        ).filter((key) => {
-          if (
-            key[0] === "angry" &&
-            localStorage.getItem("vibrations") === "true"
-          ) {
-            console.log("brrr");
-            navigator.vibrate(1000);
-          }
-          key[0] = (key[0] + " ").toUpperCase();
-          key[1] = Math.trunc(key[1] * 100);
-          return key[1] > 80;
+        .withFaceExpressions()
+        .then(detectionWithExpressions => {
+          setEmotionResult(detectionWithExpressions);
         });
-        if (singlePredictedEmotion.length > 0) {
-          setDetectedEmotion(
-            singlePredictedEmotion.toString().replace(/,/g, "") + "%"
-          );
-        }
-      } catch (error) {
-        setDetectedEmotion("No face found");
-      }
     }, (+localStorage.getItem("predictionInterval") || 2) * 1000);
+  };
+
+  const setEmotionResult = (detectionWithExpressions) => {
+    try {
+      const singlePredictedEmotion = Object.entries(
+        detectionWithExpressions.expressions
+      ).filter((key) => {
+        if (
+          key[0] === "angry" &&
+          localStorage.getItem("vibrations") === "true"
+        ) {
+          console.log("brrr");
+          navigator.vibrate(1000);
+        }
+        key[0] = (key[0] + " ").toUpperCase();
+        key[1] = Math.trunc(key[1] * 100);
+        return key[1] > 80;
+      });
+      if (singlePredictedEmotion.length > 0) {
+        setDetectedEmotion(
+          singlePredictedEmotion.toString().replace(/,/g, "") + "%"
+        );
+      }
+    } catch (error) {
+      setDetectedEmotion("No face found");
+    }
   };
 
   // ------------------------- Camera functions -------------------------
   // Desktop
-  const getBrowserCamera = () =>
-    navigator.mediaDevices
+  const getBrowserCamera = () => {
+    return new Promise((resolve, reject) => {
+      navigator.mediaDevices
       .getUserMedia({
         audio: false,
         video: {
@@ -95,12 +105,16 @@ const HomePage = () => {
           height: 224,
         },
       })
-      .then(async (stream) => {
+      .then((stream) => {
         videoRef.current.srcObject = stream;
+        return resolve(stream);
       })
       .catch((err) => {
         console.log("Something went wrong!", err);
+        return reject(err);
       });
+    });
+  };
 
   // Mobile
   const readImageFile = (data) => {
@@ -119,7 +133,7 @@ const HomePage = () => {
         fileEntry.file(
           (file) => {
             const reader = new FileReader();
-            reader.onloadend = async () => {
+            reader.onloadend = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
                 type: "image/png",
               });
@@ -143,29 +157,34 @@ const HomePage = () => {
   };
 
   const startCanvasCamera = () => {
-    const options = {
-      canvas: {
-        width: 224,
-        height: 224,
-      },
-      capture: {
-        width: 224,
-        height: 224,
-      },
-      use: "file",
-      fps: +localStorage.getItem("FPS") || 15,
-      hasThumbnail: false,
-      cameraFacing:
-        // Camera will be front as a defaults
-        localStorage.getItem("frontCamera") === "false" ? "back" : "front",
-    };
-    window.plugin.CanvasCamera.start(
-      options,
-      (err) => {
-        console.log("Something went wrong!", err);
-      },
-      (stream) => readImageFile(stream)
-    );
+    return new Promise((resolve, reject) => {
+      const options = {
+        canvas: {
+          width: 224,
+          height: 224,
+        },
+        capture: {
+          width: 224,
+          height: 224,
+        },
+        use: "file",
+        fps: +localStorage.getItem("FPS") || 15,
+        hasThumbnail: false,
+        cameraFacing:
+          // Camera will be front as a defaults
+          localStorage.getItem("frontCamera") === "false" ? "back" : "front",
+      };
+      window.plugin.CanvasCamera.start(
+        options,
+        (err) => {
+          console.log("Something went wrong!", err);
+          return reject(err);
+        },
+        (stream) => {
+          return resolve(readImageFile(stream));
+        }
+      );
+    });
   };
 
   return (

@@ -41,3 +41,5 @@ cordova/www/
 
 # Monaca
 /.monaca/*
+!/.monaca/project_info.json
+/platforms
