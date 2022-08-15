@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Page, Button } from "framework7-react";
 import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
+import placeholder from '../static/placeholder.png';
 
 const HomePage = () => {
   const videoRef = useRef(null);
@@ -198,7 +199,7 @@ const HomePage = () => {
           ref={imageRef}
           width='224'
           height='224'
-          src='../static/placeholder.png'
+          src={placeholder}
         />
       ) : (
         <video className='capturing-video' ref={videoRef} autoPlay></video>
