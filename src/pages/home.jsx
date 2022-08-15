@@ -1,35 +1,50 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Page, Button } from "framework7-react";
-import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
+import React, { useEffect, useRef, useState } from 'react';
+import { Page, Button, f7, f7ready } from 'framework7-react';
+import * as faceapi from '@vladmandic/face-api/dist/face-api.esm.js';
 import placeholder from '../static/placeholder.png';
+
+// TODO: move functions to js folder, follow this style https://github.com/monaca-samples/blink-to-text/blob/main/src/js/blinkPrediction.js
 
 const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
-  const [detectedEmotion, setDetectedEmotion] = useState("Loading...");
-  const MODEL_URL = "models";
+  const [detectedEmotion, setDetectedEmotion] = useState('Loading...');
+  const MODEL_URL = 'models';
 
-  const loadModel = async () => {
-    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-    console.log('model loaded');
+  const init = async () => {
+    try {
+      // load model
+      await loadModel();
+      // predict with dummy picture
+      if (isMobile()) {
+        predicting(imageRef.current);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  useEffect(async () => {
-    await loadModel();
-    startVideo();
-  }, []);
+  const loadModel = async () => {
+    try {
+      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const startVideo = async () => {
-    if (isMobile()) {
-      await startCanvasCamera();
-      console.log('camera started');
-      predictEmotion(imageRef.current);
-    } else {
-      await getBrowserCamera();
-      console.log('camera started');
-      predictEmotion(videoRef.current);
+    try {
+      if (isMobile()) {
+        await startCanvasCamera();
+        predictEmotion(imageRef.current);
+      } else {
+        await getBrowserCamera();
+        predictEmotion(videoRef.current);
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -55,16 +70,31 @@ const HomePage = () => {
   };
 
   // ------------------------- Predictions -------------------------
+  const start = async () => {
+    try {
+      // TODO: toggle caption to stop
+      // TODO: if the app is left out (no face detection) for several minutes to avoid crashing (memory consuming)
+      startVideo();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const predictEmotion = (stream) => {
     setInterval(() => {
       if (!stream) return;
-      faceapi
-        .detectSingleFace(stream)
-        .withFaceExpressions()
-        .then(detectionWithExpressions => {
-          setEmotionResult(detectionWithExpressions);
-        });
-    }, (+localStorage.getItem("predictionInterval") || 2) * 1000);
+      predicting(stream);
+    }, (+localStorage.getItem('predictionInterval') || 5) * 1000);
+  };
+
+  const predicting = (stream) => {
+    faceapi
+    .detectSingleFace(stream)
+    .withFaceExpressions()
+    .then(detectionWithExpressions => {
+      setEmotionResult(detectionWithExpressions);
+    })
+    .catch(err => console.log(err));
   };
 
   const setEmotionResult = (detectionWithExpressions) => {
@@ -73,23 +103,23 @@ const HomePage = () => {
         detectionWithExpressions.expressions
       ).filter((key) => {
         if (
-          key[0] === "angry" &&
-          localStorage.getItem("vibrations") === "true"
+          key[0] === 'angry' &&
+          localStorage.getItem('vibrations') === 'true'
         ) {
-          console.log("brrr");
+          console.log('brrr');
           navigator.vibrate(1000);
         }
-        key[0] = (key[0] + " ").toUpperCase();
+        key[0] = (key[0] + ' ').toUpperCase();
         key[1] = Math.trunc(key[1] * 100);
         return key[1] > 80;
       });
       if (singlePredictedEmotion.length > 0) {
         setDetectedEmotion(
-          singlePredictedEmotion.toString().replace(/,/g, "") + "%"
+          singlePredictedEmotion.toString().replace(/,/g, '') + '%'
         );
       }
     } catch (error) {
-      setDetectedEmotion("No face found");
+      setDetectedEmotion('No face found');
     }
   };
 
@@ -101,7 +131,7 @@ const HomePage = () => {
       .getUserMedia({
         audio: false,
         video: {
-          facingMode: "user",
+          facingMode: 'user',
           width: 224,
           height: 224,
         },
@@ -111,7 +141,7 @@ const HomePage = () => {
         return resolve(stream);
       })
       .catch((err) => {
-        console.log("Something went wrong!", err);
+        console.log('Something went wrong!', err);
         return reject(err);
       });
     });
@@ -120,8 +150,8 @@ const HomePage = () => {
   // Mobile
   const readImageFile = (data) => {
     // set file protocol
-    const protocol = "file://";
-    let filepath = "";
+    const protocol = 'file://';
+    let filepath = '';
     if (isAndroid()) {
       filepath = protocol + data.output.images.fullsize.file;
     } else {
@@ -136,18 +166,18 @@ const HomePage = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
-                type: "image/png",
+                type: 'image/png',
               });
               try {
                 imageRef.current.src = window.URL.createObjectURL(blob);
               } catch (error) {
-                console.warn("Video element has not loaded yet: " + error);
+                console.warn('Video element has not loaded yet: ' + error);
               }
             };
             reader.readAsArrayBuffer(file);
           },
           (err) => {
-            console.log("read", err);
+            console.log('error reading image file', err);
           }
         );
       },
@@ -168,17 +198,17 @@ const HomePage = () => {
           width: 224,
           height: 224,
         },
-        use: "file",
-        fps: +localStorage.getItem("FPS") || 15,
+        use: 'file',
+        fps: +localStorage.getItem('FPS') || 15,
         hasThumbnail: false,
         cameraFacing:
           // Camera will be front as a defaults
-          localStorage.getItem("frontCamera") === "false" ? "back" : "front",
+          localStorage.getItem('frontCamera') === 'false' ? 'back' : 'front',
       };
       window.plugin.CanvasCamera.start(
         options,
         (err) => {
-          console.log("Something went wrong!", err);
+          console.log('Something went wrong!', err);
           return reject(err);
         },
         (stream) => {
@@ -189,7 +219,7 @@ const HomePage = () => {
   };
 
   return (
-    <Page name='home' className='container-component'>
+    <Page name='home' className='container-component' onPageInit={init}>
       <h2 className='title'>Emotions Recognition</h2>
       <p className='sub-title'>How do you feel today?</p>
 
@@ -207,6 +237,14 @@ const HomePage = () => {
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
       <p className='recognized-emotion'>{detectedEmotion}</p>
+      <Button
+        outline
+        color='black'
+        className='button'
+        onClick={start}
+      >
+        Play
+      </Button>
       <Button
         outline
         color='black'

@@ -5,6 +5,7 @@ var routes = [
   {
     path: '/',
     component: HomePage,
+    keepAlive: true,
   },
   {
     path: '/settings',
