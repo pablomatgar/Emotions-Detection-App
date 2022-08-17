@@ -11,10 +11,14 @@ h2 {
   font-size: 22px;
 }
 
-.home-component {
+.container-component {
   display: flex;
   justify-content: center;
   text-align: center;
+}
+
+.page-content {
+  width: 100%;
 }
 
 .title {
@@ -28,7 +32,8 @@ h2 {
 
 .capturing-video {
   border: 3px solid #000000;
-  width: 90%;
+  width: 70%;
+  max-width: 350px;
   height: auto;
   max-height: 350px;
 }
@@ -39,18 +44,19 @@ h2 {
 
 .recognized-emotion {
   border: 3px solid #000000;
-  width: 90%;
+  width: 70%;
   margin: auto;
   padding: 10px 0;
   font-size: 16px;
 }
 
+.button {
+  width: 120px;
+  height: 40px;
+  margin: 40px auto;
+}
+
 .footer {
   color: #616161;
   font-size: 16px;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 20px;
 }

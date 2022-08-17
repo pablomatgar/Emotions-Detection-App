@@ -42,6 +42,7 @@ const MyApp = () => {
   f7ready(() => {
     // Init cordova APIs (see cordova-app.js)
     if (f7.device.cordova) {
+      console.log('init cordova');
       cordovaApp.init(f7);
     }
 
