@@ -9,7 +9,10 @@ const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
   const [detectedEmotion, setDetectedEmotion] = useState('Loading...');
+  const [isPlay, setIsPlay] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const MODEL_URL = 'models';
+  let cont = 0, interval;
 
   const init = async () => {
     try {
@@ -18,6 +21,7 @@ const HomePage = () => {
       // predict with dummy picture
       if (isMobile()) {
         predicting(imageRef.current);
+        setIsLoaded(true);
       }
     } catch (err) {
       console.log(err);
@@ -72,16 +76,20 @@ const HomePage = () => {
   // ------------------------- Predictions -------------------------
   const start = async () => {
     try {
-      // TODO: toggle caption to stop
-      // TODO: if the app is left out (no face detection) for several minutes to avoid crashing (memory consuming)
-      startVideo();
+      if(!isPlay){
+        startVideo();
+      }
+      else{
+        stopVideo();
+      }
+      setIsPlay(!isPlay);
     } catch (err) {
       console.log(err);
     }
   };
 
   const predictEmotion = (stream) => {
-    setInterval(() => {
+    interval = setInterval(() => {
       if (!stream) return;
       predicting(stream);
     }, (+localStorage.getItem('predictionInterval') || 5) * 1000);
@@ -114,12 +122,20 @@ const HomePage = () => {
         return key[1] > 80;
       });
       if (singlePredictedEmotion.length > 0) {
+        cont = 0;
         setDetectedEmotion(
           singlePredictedEmotion.toString().replace(/,/g, '') + '%'
         );
       }
     } catch (error) {
+      cont++;
       setDetectedEmotion('No face found');
+      if(cont === 3){
+        stopVideo();
+        setIsPlay(false);
+        clearInterval(interval);
+        cont = 0;
+      }
     }
   };
 
@@ -218,6 +234,14 @@ const HomePage = () => {
     });
   };
 
+  const stopVideo = () => {
+    window.plugin.CanvasCamera.stop(
+      (err) => {
+        console.log('Something went wrong!', err);
+      }
+    );
+  }
+
   return (
     <Page name='home' className='container-component' onPageInit={init}>
       <h2 className='title'>Emotions Recognition</h2>
@@ -241,9 +265,10 @@ const HomePage = () => {
         outline
         color='black'
         className='button'
+        disabled={!isLoaded}
         onClick={start}
       >
-        Play
+        {!isPlay ? 'Play' : 'Stop'}
       </Button>
       <Button
         outline
@@ -251,6 +276,9 @@ const HomePage = () => {
         href='/settings'
         className='button'
         onClick={() => {
+          if(isPlay){
+            start();
+          }
           if (isMobile()) {
             imageRef.current.src = null;
           } else {

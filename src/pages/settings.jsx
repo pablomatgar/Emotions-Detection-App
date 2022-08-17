@@ -77,7 +77,7 @@ const SettingsPage = () => {
               defaultValue={
                 localStorage.getItem("frontCamera") === "true"
                   ? "front"
-                  : "back"
+                  : "back" || "front"
               }
             >
               <option value='front' ref={frontCameraRef}>
@@ -90,7 +90,7 @@ const SettingsPage = () => {
 
         <BlockTitle>Vibrations</BlockTitle>
         <div className='block-header'>
-          Activate to vibrate while you are happy
+          Activate to vibrate while you are angry
         </div>
         <List>
           <ListItem strong>
@@ -103,6 +103,15 @@ const SettingsPage = () => {
             ></Toggle>
           </ListItem>
         </List>
+
+        <Button
+          outline
+          color='black'
+          href='/'
+          className='button'
+        >
+          Back
+        </Button>
 
         <Button
           outline
