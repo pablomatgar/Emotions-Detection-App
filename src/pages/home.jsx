@@ -21,8 +21,8 @@ const HomePage = () => {
       // predict with dummy picture
       if (isMobile()) {
         predicting(imageRef.current);
-        setIsLoaded(true);
       }
+      setIsLoaded(true);
     } catch (err) {
       console.log(err);
     }
@@ -44,7 +44,7 @@ const HomePage = () => {
         await startCanvasCamera();
         predictEmotion(imageRef.current);
       } else {
-        await getBrowserCamera();
+        window.stream = await getBrowserCamera();
         predictEmotion(videoRef.current);
       }
     } catch (err) {
@@ -74,7 +74,7 @@ const HomePage = () => {
   };
 
   // ------------------------- Predictions -------------------------
-  const start = async () => {
+  const start = () => {
     try {
       if(!isPlay){
         startVideo();
@@ -133,7 +133,6 @@ const HomePage = () => {
       if(cont === 3){
         stopVideo();
         setIsPlay(false);
-        clearInterval(interval);
         cont = 0;
       }
     }
@@ -234,13 +233,27 @@ const HomePage = () => {
     });
   };
 
-  const stopVideo = () => {
-    window.plugin.CanvasCamera.stop(
-      (err) => {
-        console.log('Something went wrong!', err);
+  const stopVideo  = () => {
+    try {
+      if (isMobile()) {
+        window.plugin.CanvasCamera.stop(
+          (err) => {
+            console.log('Something went wrong!', err);
+          },()=>{
+            imageRef.current.src = placeholder;
+          }
+        );
+      } else {
+        window.stream.getTracks().forEach(function(track) {
+          track.stop();
+        });
+        imageRef.current.src = placeholder;
       }
-    );
-  }
+      clearInterval(interval);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <Page name='home' className='container-component' onPageInit={init}>
@@ -256,7 +269,17 @@ const HomePage = () => {
           src={placeholder}
         />
       ) : (
-        <video className='capturing-video' ref={videoRef} autoPlay></video>
+        <div>
+        <video className='capturing-video' ref={videoRef} autoPlay hidden={!isPlay}></video>
+        <img
+          className='capturing-img'
+          ref={imageRef}
+          width='224'
+          height='224'
+          src={placeholder}
+          hidden={isPlay}
+        />
+        </div>
       )}
 
       <h2 className='recognized-title'>Recognised emotion:</h2>
@@ -278,11 +301,6 @@ const HomePage = () => {
         onClick={() => {
           if(isPlay){
             start();
-          }
-          if (isMobile()) {
-            imageRef.current.src = null;
-          } else {
-            videoRef.current.srcObject = null;
           }
         }}
       >
