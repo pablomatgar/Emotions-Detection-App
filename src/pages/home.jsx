@@ -12,16 +12,14 @@ const HomePage = () => {
   const [isPlay, setIsPlay] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const MODEL_URL = 'models';
-  let cont = 0, interval;
+  let cont = 0;
 
   const init = async () => {
     try {
       // load model
       await loadModel();
       // predict with dummy picture
-      if (isMobile()) {
-        predicting(imageRef.current);
-      }
+      predicting(imageRef.current);
       setIsLoaded(true);
     } catch (err) {
       console.log(err);
@@ -89,7 +87,7 @@ const HomePage = () => {
   };
 
   const predictEmotion = (stream) => {
-    interval = setInterval(() => {
+    window.interval = setInterval(() => {
       if (!stream) return;
       predicting(stream);
     }, (+localStorage.getItem('predictionInterval') || 5) * 1000);
@@ -249,7 +247,7 @@ const HomePage = () => {
         });
         imageRef.current.src = placeholder;
       }
-      clearInterval(interval);
+      clearInterval(window.interval);
     } catch (err) {
       console.log(err);
     }
