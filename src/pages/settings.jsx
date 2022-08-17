@@ -9,6 +9,8 @@ import {
   ListItem,
   Toggle,
   List,
+  NavLeft,
+  Navbar,
 } from "framework7-react";
 
 const SettingsPage = () => {
@@ -33,6 +35,9 @@ const SettingsPage = () => {
   return (
     <>
       <Page name='settings' className='container-component'>
+        <Navbar>
+          <NavLeft backLink='Back' />
+        </Navbar>
         <h2 className='title'>Settings</h2>
 
         <BlockTitle>FPS of camera</BlockTitle>
@@ -103,16 +108,6 @@ const SettingsPage = () => {
             ></Toggle>
           </ListItem>
         </List>
-
-        <Button
-          outline
-          color='black'
-          href='/'
-          className='button'
-        >
-          Back
-        </Button>
-
         <Button
           outline
           color='black'
