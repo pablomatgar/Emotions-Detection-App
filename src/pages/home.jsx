@@ -1,17 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Page, Button, f7, f7ready } from 'framework7-react';
-import * as faceapi from '@vladmandic/face-api/dist/face-api.esm.js';
-import placeholder from '../static/placeholder.png';
+import React, { useRef, useState } from "react";
+import { Page, Button, Navbar, NavRight } from "framework7-react";
+import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
+import placeholder from "../static/placeholder.png";
+import Gear from "framework7-icons/react/cjs/Gear";
 
 // TODO: move functions to js folder, follow this style https://github.com/monaca-samples/blink-to-text/blob/main/src/js/blinkPrediction.js
 
 const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
-  const [detectedEmotion, setDetectedEmotion] = useState('Loading...');
+  const [detectedEmotion, setDetectedEmotion] = useState("Loading...");
   const [isPlay, setIsPlay] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const MODEL_URL = 'models';
+  const MODEL_URL = "models";
   let cont = 0;
 
   const init = async () => {
@@ -76,8 +77,7 @@ const HomePage = () => {
     try {
       if (!isPlay) {
         startVideo();
-      }
-      else {
+      } else {
         stopVideo();
       }
       setIsPlay(!isPlay);
@@ -89,19 +89,19 @@ const HomePage = () => {
   const predictEmotion = (stream) => {
     window.interval = setInterval(() => {
       if (!stream) return;
-      setDetectedEmotion('Predicting...');
+      setDetectedEmotion("Predicting...");
       predicting(stream);
-    }, (+localStorage.getItem('predictionInterval') || 5) * 1000);
+    }, (+localStorage.getItem("predictionInterval") || 5) * 1000);
   };
 
   const predicting = (stream) => {
     faceapi
       .detectSingleFace(stream)
       .withFaceExpressions()
-      .then(detectionWithExpressions => {
+      .then((detectionWithExpressions) => {
         setEmotionResult(detectionWithExpressions);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
   const setEmotionResult = (detectionWithExpressions) => {
@@ -110,29 +110,28 @@ const HomePage = () => {
         detectionWithExpressions.expressions
       ).filter((key) => {
         if (
-          key[0] === 'angry' &&
-          localStorage.getItem('vibrations') === 'true'
+          key[0] === "angry" &&
+          localStorage.getItem("vibrations") === "true"
         ) {
-          console.log('brrr');
+          console.log("brrr");
           navigator.vibrate(1000);
         }
-        key[0] = (key[0] + ' ').toUpperCase();
+        key[0] = (key[0] + " ").toUpperCase();
         key[1] = Math.trunc(key[1] * 100);
         return key[1] > 80;
       });
       if (singlePredictedEmotion.length > 0) {
         cont = 0;
         setDetectedEmotion(
-          singlePredictedEmotion.toString().replace(/,/g, '') + '%'
+          singlePredictedEmotion.toString().replace(/,/g, "") + "%"
         );
       }
     } catch (error) {
       if (!isLoaded) {
-        setDetectedEmotion('Ready');
-      }
-      else {
+        setDetectedEmotion("Ready");
+      } else {
         cont++;
-        setDetectedEmotion('No face found');
+        setDetectedEmotion("No face found");
         if (cont === 3) {
           setIsPlay(false);
           stopVideo();
@@ -150,7 +149,7 @@ const HomePage = () => {
         .getUserMedia({
           audio: false,
           video: {
-            facingMode: 'user',
+            facingMode: "user",
             width: 224,
             height: 224,
           },
@@ -160,7 +159,7 @@ const HomePage = () => {
           return resolve(stream);
         })
         .catch((err) => {
-          console.log('Something went wrong!', err);
+          console.log("Something went wrong!", err);
           return reject(err);
         });
     });
@@ -169,8 +168,8 @@ const HomePage = () => {
   // Mobile
   const readImageFile = (data) => {
     // set file protocol
-    const protocol = 'file://';
-    let filepath = '';
+    const protocol = "file://";
+    let filepath = "";
     if (isAndroid()) {
       filepath = protocol + data.output.images.fullsize.file;
     } else {
@@ -185,18 +184,18 @@ const HomePage = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
               const blob = new Blob([new Uint8Array(reader.result)], {
-                type: 'image/png',
+                type: "image/png",
               });
               try {
                 imageRef.current.src = window.URL.createObjectURL(blob);
               } catch (error) {
-                console.warn('Video element has not loaded yet: ' + error);
+                console.warn("Video element has not loaded yet: " + error);
               }
             };
             reader.readAsArrayBuffer(file);
           },
           (err) => {
-            console.log('error reading image file', err);
+            console.log("error reading image file", err);
           }
         );
       },
@@ -217,17 +216,17 @@ const HomePage = () => {
           width: 224,
           height: 224,
         },
-        use: 'file',
-        fps: +localStorage.getItem('FPS') || 15,
+        use: "file",
+        fps: +localStorage.getItem("FPS") || 15,
         hasThumbnail: false,
         cameraFacing:
           // Camera will be front as a defaults
-          localStorage.getItem('frontCamera') === 'false' ? 'back' : 'front',
+          localStorage.getItem("frontCamera") === "false" ? "back" : "front",
       };
       window.plugin.CanvasCamera.start(
         options,
         (err) => {
-          console.log('Something went wrong!', err);
+          console.log("Something went wrong!", err);
           return reject(err);
         },
         (stream) => {
@@ -242,8 +241,9 @@ const HomePage = () => {
       if (isMobile()) {
         window.plugin.CanvasCamera.stop(
           (err) => {
-            console.log('Something went wrong!', err);
-          }, () => {
+            console.log("Something went wrong!", err);
+          },
+          () => {
             imageRef.current.src = placeholder;
           }
         );
@@ -254,7 +254,7 @@ const HomePage = () => {
         imageRef.current.src = placeholder;
       }
       clearInterval(window.interval);
-      setDetectedEmotion('Ready');
+      setDetectedEmotion("Ready");
     } catch (err) {
       console.log(err);
     }
@@ -262,6 +262,13 @@ const HomePage = () => {
 
   return (
     <Page name='home' className='container-component' onPageInit={init}>
+      <Navbar>
+        <NavRight>
+          <a href='/settings' slot='right'>
+            <Gear style={{ fontSize: "25px", margin: " 5px 5px 0 0" }} />
+          </a>
+        </NavRight>
+      </Navbar>
       <h2 className='title'>Emotions Recognition</h2>
       <p className='sub-title'>How do you feel today?</p>
 
@@ -275,7 +282,12 @@ const HomePage = () => {
         />
       ) : (
         <div>
-          <video className='capturing-video' ref={videoRef} autoPlay hidden={!isPlay}></video>
+          <video
+            className='capturing-video'
+            ref={videoRef}
+            autoPlay
+            hidden={!isPlay}
+          ></video>
           <img
             className='capturing-img'
             ref={imageRef}
@@ -296,22 +308,8 @@ const HomePage = () => {
         disabled={!isLoaded}
         onClick={start}
       >
-        {!isPlay ? 'Play' : 'Stop'}
+        {!isPlay ? "Play" : "Stop"}
       </Button>
-      <Button
-        outline
-        color='black'
-        href='/settings'
-        className='button'
-        onClick={() => {
-          if (isPlay) {
-            start();
-          }
-        }}
-      >
-        Settings
-      </Button>
-
       <p className='footer'>
         Created by <br /> Asial Corporation
       </p>
