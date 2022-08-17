@@ -74,10 +74,10 @@ const HomePage = () => {
   // ------------------------- Predictions -------------------------
   const start = () => {
     try {
-      if(!isPlay){
+      if (!isPlay) {
         startVideo();
       }
-      else{
+      else {
         stopVideo();
       }
       setIsPlay(!isPlay);
@@ -89,18 +89,19 @@ const HomePage = () => {
   const predictEmotion = (stream) => {
     window.interval = setInterval(() => {
       if (!stream) return;
+      setDetectedEmotion('Predicting...');
       predicting(stream);
     }, (+localStorage.getItem('predictionInterval') || 5) * 1000);
   };
 
   const predicting = (stream) => {
     faceapi
-    .detectSingleFace(stream)
-    .withFaceExpressions()
-    .then(detectionWithExpressions => {
-      setEmotionResult(detectionWithExpressions);
-    })
-    .catch(err => console.log(err));
+      .detectSingleFace(stream)
+      .withFaceExpressions()
+      .then(detectionWithExpressions => {
+        setEmotionResult(detectionWithExpressions);
+      })
+      .catch(err => console.log(err));
   };
 
   const setEmotionResult = (detectionWithExpressions) => {
@@ -126,12 +127,17 @@ const HomePage = () => {
         );
       }
     } catch (error) {
-      cont++;
-      setDetectedEmotion('No face found');
-      if(cont === 3){
-        stopVideo();
-        setIsPlay(false);
-        cont = 0;
+      if (!isLoaded) {
+        setDetectedEmotion('Ready');
+      }
+      else {
+        cont++;
+        setDetectedEmotion('No face found');
+        if (cont === 3) {
+          setIsPlay(false);
+          stopVideo();
+          cont = 0;
+        }
       }
     }
   };
@@ -141,22 +147,22 @@ const HomePage = () => {
   const getBrowserCamera = () => {
     return new Promise((resolve, reject) => {
       navigator.mediaDevices
-      .getUserMedia({
-        audio: false,
-        video: {
-          facingMode: 'user',
-          width: 224,
-          height: 224,
-        },
-      })
-      .then((stream) => {
-        videoRef.current.srcObject = stream;
-        return resolve(stream);
-      })
-      .catch((err) => {
-        console.log('Something went wrong!', err);
-        return reject(err);
-      });
+        .getUserMedia({
+          audio: false,
+          video: {
+            facingMode: 'user',
+            width: 224,
+            height: 224,
+          },
+        })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          return resolve(stream);
+        })
+        .catch((err) => {
+          console.log('Something went wrong!', err);
+          return reject(err);
+        });
     });
   };
 
@@ -231,23 +237,24 @@ const HomePage = () => {
     });
   };
 
-  const stopVideo  = () => {
+  const stopVideo = () => {
     try {
       if (isMobile()) {
         window.plugin.CanvasCamera.stop(
           (err) => {
             console.log('Something went wrong!', err);
-          },()=>{
+          }, () => {
             imageRef.current.src = placeholder;
           }
         );
       } else {
-        window.stream.getTracks().forEach(function(track) {
+        window.stream.getTracks().forEach(function (track) {
           track.stop();
         });
         imageRef.current.src = placeholder;
       }
       clearInterval(window.interval);
+      setDetectedEmotion('Ready');
     } catch (err) {
       console.log(err);
     }
@@ -268,15 +275,15 @@ const HomePage = () => {
         />
       ) : (
         <div>
-        <video className='capturing-video' ref={videoRef} autoPlay hidden={!isPlay}></video>
-        <img
-          className='capturing-img'
-          ref={imageRef}
-          width='224'
-          height='224'
-          src={placeholder}
-          hidden={isPlay}
-        />
+          <video className='capturing-video' ref={videoRef} autoPlay hidden={!isPlay}></video>
+          <img
+            className='capturing-img'
+            ref={imageRef}
+            width='224'
+            height='224'
+            src={placeholder}
+            hidden={isPlay}
+          />
         </div>
       )}
 
@@ -297,14 +304,14 @@ const HomePage = () => {
         href='/settings'
         className='button'
         onClick={() => {
-          if(isPlay){
+          if (isPlay) {
             start();
           }
         }}
       >
         Settings
       </Button>
-      
+
       <p className='footer'>
         Created by <br /> Asial Corporation
       </p>
