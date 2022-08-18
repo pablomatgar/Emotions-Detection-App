@@ -21,8 +21,5 @@ import App from "../components/app.jsx";
 // Init F7 React Plugin
 Framework7.use(Framework7React);
 
-// Default setting of vibration as false due to security reasons
-localStorage.setItem("vibrations", "false");
-
 // Mount React App
 ReactDOM.render(React.createElement(App), document.getElementById("app"));

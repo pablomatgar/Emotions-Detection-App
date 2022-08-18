@@ -84,9 +84,9 @@ const SettingsPage = () => {
             <select
               name='Camera'
               defaultValue={
-                localStorage.getItem("frontCamera") === "true"
-                  ? "front"
-                  : "back" || "front"
+                localStorage.getItem("frontCamera") === "false"
+                  ? "back"
+                  : "front"
               }
             >
               <option value='front' ref={frontCameraRef}>
