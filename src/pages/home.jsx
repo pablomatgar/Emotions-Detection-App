@@ -3,6 +3,7 @@ import { Page, Button, Navbar, NavRight } from "framework7-react";
 import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
 import placeholder from "../static/placeholder.png";
 import Gear from "framework7-icons/react/cjs/Gear";
+import hybridFunctions from "../js/hybridFunctions";
 
 const HomePage = () => {
   const videoRef = useRef(null);
@@ -41,7 +42,7 @@ const HomePage = () => {
   /* Start Phone/Browser camera */
   const startVideo = async () => {
     try {
-      if (isMobile()) {
+      if (hybridFunctions.isMobile()) {
         await startCanvasCamera();
         predictEmotion(imageRef.current);
       } else {
@@ -50,27 +51,6 @@ const HomePage = () => {
       }
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  // ------------------------- Helper functions -------------------------
-  const isAndroid = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) return true;
-    return false;
-  };
-
-  const isIos = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/iPad|iPhone|iPod/i.test(userAgent)) return true;
-    return false;
-  };
-
-  const isMobile = () => {
-    if (window.cordova && (isAndroid() || isIos())) {
-      return true;
-    } else {
-      return false;
     }
   };
 
@@ -183,7 +163,7 @@ const HomePage = () => {
     // set file protocol
     const protocol = "file://";
     let filepath = "";
-    if (isAndroid()) {
+    if (hybridFunctions.isAndroid()) {
       filepath = protocol + data.output.images.fullsize.file;
     } else {
       filepath = data.output.images.fullsize.file;
@@ -251,7 +231,7 @@ const HomePage = () => {
 
   const stopVideo = () => {
     try {
-      if (isMobile()) {
+      if (hybridFunctions.isMobile()) {
         window.plugin.CanvasCamera.stop(
           (err) => {
             console.log("Something went wrong!", err);
@@ -285,7 +265,7 @@ const HomePage = () => {
       <h2 className='title'>Emotions Recognition</h2>
       <p className='sub-title'>How do you feel today?</p>
 
-      {isMobile() ? (
+      {hybridFunctions.isMobile() ? (
         <img
           className='capturing-img'
           ref={imageRef}
