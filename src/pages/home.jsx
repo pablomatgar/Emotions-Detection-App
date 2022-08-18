@@ -4,8 +4,6 @@ import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
 import placeholder from "../static/placeholder.png";
 import Gear from "framework7-icons/react/cjs/Gear";
 
-// TODO: move functions to js folder, follow this style https://github.com/monaca-samples/blink-to-text/blob/main/src/js/blinkPrediction.js
-
 const HomePage = () => {
   const videoRef = useRef(null);
   const imageRef = useRef(null);
@@ -13,8 +11,10 @@ const HomePage = () => {
   const [isPlay, setIsPlay] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const MODEL_URL = "models";
+  const ANGRY_EMOTION = "ANGRY";
   let cont = 0;
 
+  /* Page init */
   const init = async () => {
     try {
       // load model
@@ -27,6 +27,7 @@ const HomePage = () => {
     }
   };
 
+  /* Load FaceAPI models */
   const loadModel = async () => {
     try {
       await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
@@ -37,6 +38,7 @@ const HomePage = () => {
     }
   };
 
+  /* Start Phone/Browser camera */
   const startVideo = async () => {
     try {
       if (isMobile()) {
@@ -73,6 +75,7 @@ const HomePage = () => {
   };
 
   // ------------------------- Predictions -------------------------
+  /* Toggle Start/Stop prediction */
   const start = () => {
     try {
       if (!isPlay) {
@@ -86,6 +89,7 @@ const HomePage = () => {
     }
   };
 
+  /* Prediction emotion every 5 seconds */
   const predictEmotion = (stream) => {
     window.interval = setInterval(() => {
       if (!stream) return;
@@ -94,6 +98,7 @@ const HomePage = () => {
     }, (+localStorage.getItem("predictionInterval") || 5) * 1000);
   };
 
+  /* Prediction emotion form camera stream */
   const predicting = (stream) => {
     faceapi
       .detectSingleFace(stream)
@@ -104,23 +109,30 @@ const HomePage = () => {
       .catch((err) => console.log(err));
   };
 
+  /* Return detected emotion with high confidence value */
+  const getDetectedEmotion = (detectionWithExpressions) => {
+    return Object.entries(
+      detectionWithExpressions.expressions
+    ).filter((key) => {
+      key[0] = (key[0] + " ").toUpperCase();
+      key[1] = Math.trunc(key[1] * 100);
+      return key[1] > 80;
+    });
+  };
+
+  /* Display result */
   const setEmotionResult = (detectionWithExpressions) => {
     try {
-      const singlePredictedEmotion = Object.entries(
-        detectionWithExpressions.expressions
-      ).filter((key) => {
+      const singlePredictedEmotion = getDetectedEmotion(detectionWithExpressions);
+      if (singlePredictedEmotion.length > 0) {
+        // Vibrate phone if the detection emotion is "Angry"
         if (
-          key[0] === "angry" &&
+          singlePredictedEmotion[0][0].trim().toUpperCase() === ANGRY_EMOTION &&
           localStorage.getItem("vibrations") === "true"
         ) {
           console.log("brrr");
           navigator.vibrate(1000);
         }
-        key[0] = (key[0] + " ").toUpperCase();
-        key[1] = Math.trunc(key[1] * 100);
-        return key[1] > 80;
-      });
-      if (singlePredictedEmotion.length > 0) {
         cont = 0;
         setDetectedEmotion(
           singlePredictedEmotion.toString().replace(/,/g, "") + "%"
@@ -132,6 +144,7 @@ const HomePage = () => {
       } else {
         cont++;
         setDetectedEmotion("No face found");
+        // Stop prediction interval if there are too many errors
         if (cont === 3) {
           setIsPlay(false);
           stopVideo();

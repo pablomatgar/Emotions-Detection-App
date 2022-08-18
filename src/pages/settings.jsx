@@ -20,16 +20,20 @@ const SettingsPage = () => {
   const frontCameraRef = useRef();
 
   const saveSettings = () => {
-    localStorage.setItem(
-      "vibrations",
-      vibrationsRef.current.f7Toggle().checked
-    );
-    localStorage.setItem("FPS", FPSref.current.getValue());
-    localStorage.setItem(
-      "predictionInterval",
-      predictionIntervalRef.current.el.f7Range.value
-    );
-    localStorage.setItem("frontCamera", frontCameraRef.current.selected);
+    try {
+      localStorage.setItem(
+        "vibrations",
+        vibrationsRef.current.f7Toggle().checked
+      );
+      localStorage.setItem("FPS", FPSref.current.getValue());
+      localStorage.setItem(
+        "predictionInterval",
+        predictionIntervalRef.current.el.f7Range.value
+      );
+      localStorage.setItem("frontCamera", frontCameraRef.current.selected);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -63,7 +67,7 @@ const SettingsPage = () => {
             scaleSteps={9}
             scaleSubSteps={1}
             ref={predictionIntervalRef}
-            value={+localStorage.getItem("predictionInterval") || 2}
+            value={+localStorage.getItem("predictionInterval") || 5}
           />
         </Block>
 
