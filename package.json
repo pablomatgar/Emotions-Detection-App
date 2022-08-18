@@ -16,6 +16,7 @@
         "com.virtuoworks.cordova-plugin-canvascamera": "^1.2.2",
         "cordova-plugin-splashscreen": "6.0.0",
         "cordova-plugin-statusbar": "2.4.3",
+        "cordova-plugin-vibration": "3.1.1",
         "cpy-cli": "^3.1.1",
         "dom7": "^3.0.0",
         "framework7": "^6.3.16",
@@ -42,6 +43,7 @@
     },
     "cordova": {
         "plugins": {
+            "cordova-plugin-vibration": {},
             "cordova-plugin-splashscreen": {},
             "monaca-plugin-monaca-core": {},
             "cordova-plugin-statusbar": {},
